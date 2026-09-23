@@ -95,7 +95,7 @@ st.markdown("""
 # ==========================================================
 
 try:
-    GROQ_API_KEY = st.secrets["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"]
+    GROQ_API_KEY = ["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"]
     client = Groq(api_key=GROQ_API_KEY)
 
 except Exception:
