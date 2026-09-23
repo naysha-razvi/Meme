@@ -176,15 +176,15 @@ if st.button("🚀 Analyze Trends"):
             with st.spinner("Analyzing internet culture and trends..."):
 
                 response = client.models.generate_content(
-                    model="gemini-flash-lite-latest",
-                    contents=user_prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        max_output_tokens=800
-                    )
-                )
+                   model = genai.GenerativeModel("gemini-1.5-flash")
 
-                result = response.text
+response = model.generate_content(
+
+"Hello"
+
+)
+
+print(response.text)
 
                 st.session_state.messages.append(
                     {
