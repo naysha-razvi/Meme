@@ -264,4 +264,52 @@ if st.session_state.history:
         "What are the risks of using this meme?",
         "Give me 5 campaign ideas.",
         "Which platforms should I target?",
-        "How long will this trend
+        "How long will this trend last?"
+    ]
+
+    cols = st.columns(len(suggestions))
+
+    for i, question in enumerate(suggestions):
+        with cols[i]:
+            if st.key=f"followup_{i}"):
+
+                try:
+                    with st.spinner("Generating follow-up analysis..."):
+
+                        response = client.chat.completions.create(
+                            model=MODEL_NAME,
+                            messages=[
+                                {
+                                    "role": "system",
+                                    "content": SYSTEM_PROMPT
+                                },
+                                {
+                                    "role": "user",
+                                    "content": question
+                                }
+                            ],
+                            temperature=0.7,
+                            max_tokens=1000
+                        )
+
+                        answer = response.choices[0].message.content
+
+                        st.session_state.history.append({
+                            "user": question,
+                            "assistant": answer
+                        })
+
+                        st.rerun()
+
+                except Exception as e:
+                    st.error(f"❌ Error: {e}")
+
+# ==================================================
+# FOOTER
+# ==================================================
+
+st.markdown("---")
+
+st.info(
+    "🚀 MemeScout helps brands discover viral internet culture opportunities before competitors."
+)
