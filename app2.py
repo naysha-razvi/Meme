@@ -1,214 +1,250 @@
 import streamlit as st
-from openai import OpenAI
+import os
+from google import genai
+from google.genai import types
 
-# ---------------------------
+# ----------------------------------
 # PAGE CONFIG
-# ---------------------------
+# ----------------------------------
 st.set_page_config(
-    page_title="DeepSeek AI Assistant",
-    page_icon="🤖",
+    page_title="MemeScout AI",
+    page_icon="🔥",
     layout="wide"
 )
 
-# ---------------------------
-# NVIDIA CLIENT
-# ---------------------------
-client = OpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
-    api_key="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"
-)
-
-# ---------------------------
-# SESSION STATE
-# ---------------------------
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# ---------------------------
+# ----------------------------------
 # CUSTOM CSS
-# ---------------------------
+# ----------------------------------
 st.markdown("""
 <style>
 
-/* Main Background */
-.stApp{
-    background-color:#0B1220;
+.stApp {
+    background-color: #F8FAFC;
 }
 
-/* Sidebar */
-section[data-testid="stSidebar"]{
-    background-color:#111827;
+.hero {
+    background: linear-gradient(135deg, #7C3AED, #EC4899);
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
 }
 
-/* Hero Section */
-.hero{
-    background:#111827;
-    border:1px solid #334155;
-    border-radius:24px;
-    padding:2rem;
-    text-align:center;
-    margin-bottom:20px;
+.hero h1 {
+    font-size: 48px;
 }
 
-.hero h1{
-    color:#F8FAFC;
-    font-size:42px;
-    margin-bottom:8px;
+.hero p {
+    font-size: 18px;
 }
 
-.hero p{
-    color:#94A3B8;
-    font-size:16px;
+.user-box {
+    background-color: #EDE9FE;
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
 }
 
-/* Cards */
-.insight-card{
-    background:#111827;
-    border:1px solid #334155;
-    border-radius:18px;
-    padding:15px;
+.bot-box {
+    background-color: #FCE7F3;
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
 }
 
-/* Buttons */
-.stButton button{
-    width:100%;
-    border-radius:12px;
-    background:#2563EB;
-    color:white;
-    border:none;
-    font-weight:600;
+.insight-card {
+    background: white;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
 }
 
-.stButton button:hover{
-    background:#1D4ED8;
-}
-
-/* Chat Message Styling */
-[data-testid="stChatMessage"]{
-    border-radius:16px;
+.stButton button {
+    width: 100%;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7C3AED, #EC4899);
+    color: white;
+    font-weight: bold;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------
-# HERO
-# ---------------------------
+api_key = os.getenv("GEMINI_API_KEY") 
+# ----------------------------------
+# SIDEBAR
+# ----------------------------------
+with st.sidebar:
+    st.title("⚙ Configuration")
+
+    st.markdown("---")
+
+    st.subheader("🎯 What MemeScout Does")
+
+    st.markdown("""
+    - Discover trending memes
+    - Explain meme meaning
+    - Analyze Gen Z culture
+    - Suggest campaign ideas
+    - Evaluate brand safety
+    - Recommend social platforms
+    - Generate viral content strategies
+    """)
+
+# ----------------------------------
+# HEADER
+# ----------------------------------
 st.markdown("""
 <div class="hero">
-    <h1>🤖 DeepSeek AI Assistant</h1>
-    <p>Powered by NVIDIA NIM</p>
+    <h1>🔥 MemeScout AI</h1>
+    <p>Your AI Meme Trend Analyst for Brands & Marketers</p>
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------------
-# SIDEBAR
-# ---------------------------
-with st.sidebar:
+# ----------------------------------
+# SYSTEM PROMPT
+# ----------------------------------
+system_instruction = """
+You are a Meme Trend Analyst AI.
 
-    st.title("⚙️ Settings")
+Your name is MemeScout.
 
-    st.markdown("### About")
-    st.info(
-        "AI Assistant powered by DeepSeek and NVIDIA APIs"
-    )
-
-    if st.button("🗑️ Clear Chat"):
-        st.session_state.messages = []
-        st.rerun()
-
-    st.divider()
-
-    st.markdown("### Suggested Topics")
-
-    st.markdown("""
-    ✅ Business Analysis
-
-    ✅ Prompt Engineering
-
-    ✅ Marketing Ideas
-
-    ✅ AI Learning
-
-    ✅ Startup Planning
-    """)
-
-# ---------------------------
-# DISPLAY OLD CHAT
-# ---------------------------
-for msg in st.session_state.messages:
-
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-
-# ---------------------------
-# USER INPUT
-# ---------------------------
-user_input = st.chat_input(
-    "Ask me anything..."
-)
-
-# ---------------------------
-# AI RESPONSE
-# ---------------------------
-if user_input:
-
-    st.session_state.messages.append(
-        {
-            "role":"user",
-            "content":user_input
-        }
-    )
-
-    with st.chat_message("user"):
-        st.markdown(user_input)
-
-    with st.chat_message("assistant"):
-
-        try:
-
-            messages = [
-                {
-                    "role":"system",
-                    "content":"""
-You are an intelligent AI assistant.
+Your Role:
+- Help brands identify trending memes.
+- Explain meme meaning and cultural context.
+- Suggest how brands can use memes in marketing campaigns.
+- Highlight risks of using a meme.
+- Evaluate whether a meme aligns with a brand's target audience.
+- Recommend suitable social media platforms.
+- Suggest engagement strategies based on trends.
 
 Rules:
-1. Give accurate answers.
-2. Avoid repeating responses.
-3. Be concise and practical.
-4. Use bullet points when helpful.
-5. Ask one relevant follow-up question.
+- Never provide offensive content.
+- Warn users when a meme may be controversial.
+- Explain internet slang in simple language.
+- Focus on marketing insights rather than entertainment only.
+
+Always greet users with:
+
+"🔥 Hello! I am MemeScout, your AI Meme Trend Analyst. I help brands discover and leverage internet trends before they go mainstream."
 """
-                }
-            ]
 
-            messages.extend(st.session_state.messages)
+# ----------------------------------
+# SESSION STATE
+# ----------------------------------
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-            response = client.chat.completions.create(
+# ----------------------------------
+# SUGGESTED PROMPTS
+# ----------------------------------
+st.markdown("### 💡 Try These Questions")
 
-                model="deepseek-ai/deepseek-r1",
+col1, col2, col3 = st.columns(3)
 
-                messages=messages,
+with col1:
+    st.info("Find trending memes for a fashion brand")
 
-                temperature=0.7,
+with col2:
+    st.info("What memes are popular among Gen Z this week?")
 
-                top_p=0.9,
+with col3:
+    st.info("Suggest meme marketing ideas for a food startup")
 
-                max_tokens=1200
-            )
+# ----------------------------------
+# USER INPUT
+# ----------------------------------
+user_prompt = st.text_area(
+    "Ask MemeScout",
+    placeholder="Example: Find trending memes that a sportswear brand can use this week..."
+)
 
-            answer = response.choices[0].message.content
+# ----------------------------------
+# BUTTON
+# ----------------------------------
+if st.button("🚀 Analyze Trends"):
 
-            st.markdown(answer)
+    if not api_key:
+        st.error("Please enter your Gemini API Key.")
+    elif not user_prompt.strip():
+        st.warning("Enter a question to continue.")
+    else:
 
-            st.session_state.messages.append(
-                {
-                    "role":"assistant",
-                    "content":answer
-                }
-            )
+        try:
+            client = genai.Client(api_key=api_key)
+
+            with st.spinner("Analyzing internet culture and trends..."):
+
+                response = client.models.generate_content(
+                    model="gemini-flash-lite-latest",
+                    contents=user_prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        max_output_tokens=800
+                    )
+                )
+
+                result = response.text
+
+                st.session_state.messages.append(
+                    {
+                        "user": user_prompt,
+                        "assistant": result
+                    }
+                )
 
         except Exception as e:
-
             st.error(f"Error: {e}")
+
+# ----------------------------------
+# CONVERSATION
+# ----------------------------------
+if st.session_state.messages:
+
+    st.markdown("## 📈 Meme Trend Insights")
+
+    for msg in reversed(st.session_state.messages):
+
+        st.markdown(
+            f"""
+            <div class="user-box">
+            <b>👤 You:</b><br>
+            {msg['user']}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f"""
+            <div class="bot-box">
+            <b>🔥 MemeScout:</b><br>
+            {msg['assistant']}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+# ----------------------------------
+# FOOTER
+# ----------------------------------
+st.markdown("---")
+
+st.markdown("""
+<div class="insight-card">
+<b>📌 Business Use Cases</b>
+
+<ul>
+<li>Social Media Teams</li>
+<li>Marketing Agencies</li>
+<li>D2C Brands</li>
+<li>Fashion Brands</li>
+<li>Food & Beverage Companies</li>
+<li>Personal Branding Consultants</li>
+<li>Influencer Marketing Teams</li>
+</ul>
+
+<b>Goal:</b> Help brands identify viral internet culture opportunities before competitors.
+</div>
+""", unsafe_allow_html=True)
