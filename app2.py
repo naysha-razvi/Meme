@@ -1,18 +1,47 @@
 import streamlit as st
-from google import genai
+from groq import Groq
 
-# ----------------------------------
-# PAGE CONFIG
-# ----------------------------------
+# ==========================================================
+# CONFIGURATION
+# ==========================================================
+
 st.set_page_config(
     page_title="🔥 MemeScout AI",
     page_icon="🔥",
     layout="wide"
 )
 
-# ----------------------------------
+MODEL_NAME = "openai/gpt-oss-120b"
+
+SYSTEM_PROMPT = """
+You are MemeScout, an AI Meme Trend Analyst.
+
+Your Responsibilities:
+- Identify trending memes.
+- Explain meme meaning and cultural context.
+- Suggest marketing use cases.
+- Highlight risks and brand safety concerns.
+- Recommend audience fit.
+- Suggest social platforms.
+- Generate engagement strategies.
+
+Rules:
+- Never provide offensive content.
+- Warn about controversial trends.
+- Explain internet slang simply.
+- Focus on marketing insights.
+
+Always begin with:
+
+🔥 Hello! I am MemeScout, your AI Meme Trend Analyst.
+
+I help brands discover and leverage internet trends before they go mainstream.
+"""
+
+# ==========================================================
 # CUSTOM CSS
-# ----------------------------------
+# ==========================================================
+
 st.markdown("""
 <style>
 
@@ -21,7 +50,7 @@ st.markdown("""
 }
 
 .hero {
-    background: linear-gradient(135deg, #7C3AED, #EC4899);
+    background: linear-gradient(135deg,#7C3AED,#EC4899);
     padding: 2rem;
     border-radius: 20px;
     text-align: center;
@@ -45,7 +74,7 @@ st.markdown("""
 
 .insight-card {
     background: white;
-    padding: 15px;
+    padding: 20px;
     border-radius: 15px;
     box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
 }
@@ -53,7 +82,7 @@ st.markdown("""
 .stButton button {
     width: 100%;
     border-radius: 10px;
-    background: linear-gradient(135deg, #7C3AED, #EC4899);
+    background: linear-gradient(135deg,#7C3AED,#EC4899);
     color: white;
     font-weight: bold;
 }
@@ -61,75 +90,62 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ----------------------------------
-# API KEY
-# ----------------------------------
-api_key = "AQ.Ab8RN6Le0l3pqr-WmaR7o9roeNeZWBMfsnLsyJqEOnKT9aPK2A"
+# ==========================================================
+# GROQ CLIENT
+# ==========================================================
 
-# ----------------------------------
-# SYSTEM PROMPT
-# ----------------------------------
-SYSTEM_PROMPT = """
-You are a Meme Trend Analyst AI.
+try:
+    GROQ_API_KEY = st.secrets["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"]
+    client = Groq(api_key=GROQ_API_KEY)
 
-Your name is MemeScout.
+except Exception:
+    client = None
 
-Your Role:
-- Help brands identify trending memes.
-- Explain meme meaning and cultural context.
-- Suggest how brands can use memes in marketing campaigns.
-- Highlight risks of using a meme.
-- Evaluate whether a meme aligns with a brand's target audience.
-- Recommend suitable social media platforms.
-- Suggest engagement strategies based on trends.
-
-Rules:
-- Never provide offensive content.
-- Warn users when a meme may be controversial.
-- Explain internet slang in simple language.
-- Focus on marketing insights rather than entertainment only.
-
-Always start with:
-
-🔥 Hello! I am MemeScout, your AI Meme Trend Analyst.
-I help brands discover and leverage internet trends before they go mainstream.
-"""
-
-# ----------------------------------
+# ==========================================================
 # SESSION STATE
-# ----------------------------------
+# ==========================================================
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# ----------------------------------
+# ==========================================================
 # SIDEBAR
-# ----------------------------------
+# ==========================================================
+
 with st.sidebar:
-    st.title("⚙ Configuration")
+
+    st.title("⚙️ MemeScout")
 
     st.markdown("---")
 
-    st.subheader("🎯 What MemeScout Does")
+    st.subheader("🎯 Features")
 
     st.markdown("""
-    ✅ Discover trending memes
+✅ Discover Trending Memes
 
-    ✅ Explain meme meaning
+✅ Explain Meme Meaning
 
-    ✅ Analyze Gen Z culture
+✅ Analyze Gen Z Culture
 
-    ✅ Suggest campaign ideas
+✅ Generate Campaign Ideas
 
-    ✅ Evaluate brand safety
+✅ Evaluate Brand Safety
 
-    ✅ Recommend social platforms
+✅ Platform Recommendations
 
-    ✅ Generate viral content strategies
-    """)
+✅ Viral Content Strategies
+""")
 
-# ----------------------------------
+    st.markdown("---")
+
+    if st.button("🗑 Clear History"):
+        st.session_state.messages = []
+        st.rerun()
+
+# ==========================================================
 # HEADER
-# ----------------------------------
+# ==========================================================
+
 st.markdown("""
 <div class="hero">
 <h1>🔥 MemeScout AI</h1>
@@ -137,10 +153,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ----------------------------------
-# QUICK PROMPTS
-# ----------------------------------
-st.markdown("### 💡 Try These Questions")
+# ==========================================================
+# EXAMPLE PROMPTS
+# ==========================================================
+
+st.markdown("### 💡 Example Questions")
 
 col1, col2, col3 = st.columns(3)
 
@@ -153,57 +170,64 @@ with col2:
 with col3:
     st.info("Suggest meme marketing ideas for a food startup")
 
-# ----------------------------------
+# ==========================================================
 # USER INPUT
-# ----------------------------------
+# ==========================================================
+
 user_prompt = st.text_area(
     "Ask MemeScout",
     height=150,
     placeholder="Example: Find trending memes that a sportswear brand can use this week..."
 )
 
-# ----------------------------------
+# ==========================================================
 # GENERATE RESPONSE
-# ----------------------------------
+# ==========================================================
+
 if st.button("🚀 Analyze Trends"):
 
-    if not api_key:
-        st.error("GEMINI_API_KEY is missing in Streamlit Secrets.")
+    if not client:
+        st.error("Missing GROQ_API_KEY in Streamlit Secrets.")
+
     elif not user_prompt.strip():
         st.warning("Please enter a question.")
+
     else:
+
         try:
-            client = genai.Client(api_key=api_key)
 
             with st.spinner("🔍 Analyzing meme trends..."):
 
-                prompt = f"""
-                {SYSTEM_PROMPT}
-
-                User Question:
-                {user_prompt}
-                """
-
-                response = client.models.generate_content(
-                    model="gemini-1.5-flash",
-                    contents=prompt
+                response = client.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": SYSTEM_PROMPT
+                        },
+                        {
+                            "role": "user",
+                            "content": user_prompt
+                        }
+                    ],
+                    temperature=0.7,
+                    max_tokens=2000
                 )
 
-                result = response.text
+                result = response.choices[0].message.content
 
-                st.session_state.messages.append(
-                    {
-                        "user": user_prompt,
-                        "assistant": result
-                    }
-                )
+                st.session_state.messages.append({
+                    "user": user_prompt,
+                    "assistant": result
+                })
 
         except Exception as e:
-            st.error(f"Error: {e}")
+            st.error(f"Error: {str(e)}")
 
-# ----------------------------------
+# ==========================================================
 # CHAT HISTORY
-# ----------------------------------
+# ==========================================================
+
 if st.session_state.messages:
 
     st.markdown("## 📈 Meme Trend Insights")
@@ -230,9 +254,10 @@ if st.session_state.messages:
             unsafe_allow_html=True
         )
 
-# ----------------------------------
+# ==========================================================
 # FOOTER
-# ----------------------------------
+# ==========================================================
+
 st.markdown("---")
 
 st.markdown("""
@@ -251,6 +276,7 @@ st.markdown("""
 </ul>
 
 <b>Goal:</b>
+
 Help brands identify viral internet culture opportunities before competitors.
 
 </div>
