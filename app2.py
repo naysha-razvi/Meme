@@ -271,7 +271,7 @@ if st.session_state.history:
 
     for i, question in enumerate(suggestions):
         with cols[i]:
-            if st.key=f"followup_{i}":
+            if st.key==f"followup_{i}":
 
                 try:
                     with st.spinner("Generating follow-up analysis..."):
