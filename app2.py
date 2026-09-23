@@ -15,7 +15,7 @@ st.set_page_config(
 # ---------------------------
 client = OpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
-    api_key=nvapi-"yUU2CHZltX7fyi2TyKnZyBzIsViuI66MTtztnW3lkPMxJv3vKAuJz4Ej7Wp3eLzy"
+    api_key="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"
 )
 
 # ---------------------------
