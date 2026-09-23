@@ -231,4 +231,5 @@ if prompt:
 st.markdown("---")
 
 st.info(
-    "🚀 MemeScout helps 
+    "🚀 MemeScout helps brands identify viral internet culture opportunities before competitors."
+)
