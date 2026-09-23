@@ -15,11 +15,7 @@ st.set_page_config(
 # API KEY
 # ==================================================
 
-try:
-    GROQ_API_KEY ="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"
-except Exception:
-    st.error("❌ GROQ_API_KEY not found in Streamlit Secrets")
-    st.stop()
+GROQ_API_KEY = "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"
 
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -93,7 +89,7 @@ st.markdown("""
     font-weight:bold;
 }
 
-textarea {
+textarea{
     border-radius:12px !important;
 }
 
@@ -184,7 +180,6 @@ prompt = st.text_area(
 if st.button("🚀 Analyze Trends"):
 
     if not prompt.strip():
-
         st.warning("Please enter a question.")
 
     else:
@@ -211,10 +206,12 @@ if st.button("🚀 Analyze Trends"):
 
                 answer = response.choices[0].message.content
 
-                st.session_state.history.append({
-                    "user": prompt,
-                    "assistant": answer
-                })
+                st.session_state.history.append(
+                    {
+                        "user": prompt,
+                        "assistant": answer
+                    }
+                )
 
                 st.rerun()
 
@@ -234,8 +231,8 @@ if st.session_state.history:
         st.markdown(
             f"""
             <div class="user-box">
-            <b>👤 You:</b><br><br>
-            {chat['user']}
+                <b>👤 You:</b><br><br>
+                {chat['user']}
             </div>
             """,
             unsafe_allow_html=True
@@ -244,65 +241,12 @@ if st.session_state.history:
         st.markdown(
             f"""
             <div class="bot-box">
-            <b>🔥 MemeScout:</b><br><br>
-            {chat['assistant']}
+                <b>🔥 MemeScout:</b><br><br>
+                {chat['assistant']}
             </div>
             """,
             unsafe_allow_html=True
         )
-
-# ==================================================
-# FOLLOW-UP QUESTIONS
-# ==================================================
-
-if st.session_state.history:
-
-    st.markdown("### 🤔 Suggested Follow-up Questions")
-
-    suggestions = [
-        "What brands can use this meme?",
-        "What are the risks of using this meme?",
-        "Give me 5 campaign ideas.",
-        "Which platforms should I target?",
-        "How long will this trend last?"
-    ]
-
-    cols = st.columns(len(suggestions))
-
-    for i, question in enumerate(suggestions):
-        with cols[i]:
-            if st.key==f"followup_{i}":
-
-                try:
-                    with st.spinner("Generating follow-up analysis..."):
-
-                        response = client.chat.completions.create(
-                            model=MODEL_NAME,
-                            messages=[
-                                {
-                                    "role": "system",
-                                    "content": SYSTEM_PROMPT
-                                },
-                                {
-                                    "role": "user",
-                                    "content": question
-                                }
-                            ],
-                            temperature=0.7,
-                            max_tokens=1000
-                        )
-
-                        answer = response.choices[0].message.content
-
-                        st.session_state.history.append({
-                            "user": question,
-                            "assistant": answer
-                        })
-
-                        st.rerun()
-
-                except Exception as e:
-                    st.error(f"❌ Error: {e}")
 
 # ==================================================
 # FOOTER
