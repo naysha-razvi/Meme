@@ -1,6 +1,5 @@
 import streamlit as st
 from groq import Groq
-import os
 
 # ==================================================
 # PAGE CONFIG
@@ -13,13 +12,13 @@ st.set_page_config(
 )
 
 # ==================================================
-# API CONFIG
+# API KEY
 # ==================================================
 
-GROQ_API_KEY = os.getenv("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")
-
-if not GROQ_API_KEY:
-    st.error("GROQ_API_KEY not found.")
+try:
+    GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
+except Exception:
+    st.error("❌ GROQ_API_KEY not found in Streamlit Secrets")
     st.stop()
 
 client = Groq(api_key=GROQ_API_KEY)
@@ -31,18 +30,22 @@ MODEL_NAME = "llama-3.1-8b-instant"
 # ==================================================
 
 SYSTEM_PROMPT = """
-You are MemeScout, an AI Meme Trend Analyst.
+You are MemeScout, an expert Meme Trend Analyst AI.
 
-Responsibilities:
-- Identify trending memes
-- Explain cultural context
-- Suggest marketing campaigns
-- Highlight risks and brand safety concerns
-- Recommend audience fit
-- Suggest social platforms
-- Generate engagement ideas
+Your responsibilities:
 
-Always start with:
+• Identify trending memes
+• Explain meme meaning and cultural context
+• Recommend audiences
+• Suggest marketing campaigns
+• Highlight brand safety risks
+• Suggest content ideas
+• Recommend social media platforms
+• Generate engagement strategies
+
+Always provide practical and actionable insights.
+
+Always begin your answer with:
 
 🔥 Hello! I am MemeScout, your AI Meme Trend Analyst.
 """
@@ -55,39 +58,43 @@ st.markdown("""
 <style>
 
 .stApp{
-    background:#F8FAFC;
+    background-color:#F8FAFC;
 }
 
 .hero{
     background:linear-gradient(135deg,#7C3AED,#EC4899);
     padding:2rem;
     border-radius:20px;
-    color:white;
     text-align:center;
+    color:white;
     margin-bottom:20px;
 }
 
-.chat-user{
+.user-box{
     background:#EDE9FE;
     padding:15px;
     border-radius:12px;
     margin-bottom:10px;
 }
 
-.chat-bot{
+.bot-box{
     background:#FCE7F3;
     padding:15px;
     border-radius:12px;
-    margin-bottom:10px;
+    margin-bottom:15px;
 }
 
 .stButton button{
     width:100%;
+    background:linear-gradient(135deg,#7C3AED,#EC4899);
+    color:white;
     border:none;
     border-radius:10px;
-    color:white;
     font-weight:bold;
-    background:linear-gradient(135deg,#7C3AED,#EC4899);
+}
+
+textarea {
+    border-radius:12px !important;
 }
 
 </style>
@@ -110,9 +117,9 @@ with st.sidebar:
 
     st.markdown("---")
 
-    st.write("### Features")
+    st.subheader("Features")
 
-    st.write("""
+    st.markdown("""
 ✅ Trending Memes
 
 ✅ Meme Meaning
@@ -133,18 +140,18 @@ with st.sidebar:
         st.rerun()
 
 # ==================================================
-# HEADER
+# HERO SECTION
 # ==================================================
 
 st.markdown("""
 <div class="hero">
-<h1>🔥 MemeScout AI</h1>
-<p>Your AI Meme Trend Analyst</p>
+    <h1>🔥 MemeScout AI</h1>
+    <p>Your AI Meme Trend Analyst</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ==================================================
-# EXAMPLES
+# SAMPLE QUESTIONS
 # ==================================================
 
 st.subheader("💡 Example Questions")
@@ -155,13 +162,13 @@ with col1:
     st.info("Trending memes for fashion brands")
 
 with col2:
-    st.info("Most popular Gen-Z memes")
+    st.info("Most popular Gen-Z memes in India")
 
 with col3:
     st.info("Food startup meme campaign ideas")
 
 # ==================================================
-# INPUT
+# USER INPUT
 # ==================================================
 
 prompt = st.text_area(
@@ -171,81 +178,31 @@ prompt = st.text_area(
 )
 
 # ==================================================
-# GENERATE
+# GENERATE RESPONSE
 # ==================================================
 
 if st.button("🚀 Analyze Trends"):
 
     if not prompt.strip():
-        st.warning("Enter a question.")
+
+        st.warning("Please enter a question.")
+
     else:
 
         try:
 
-            with st.spinner("Analyzing..."):
+            with st.spinner("🔍 Analyzing meme trends..."):
 
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[
                         {
-                            "role":"system",
-                            "content":SYSTEM_PROMPT
+                            "role": "system",
+                            "content": SYSTEM_PROMPT
                         },
                         {
-                            "role":"user",
-                            "content":prompt
+                            "role": "user",
+                            "content": prompt
                         }
                     ],
-                    temperature=0.7,
-                    max_tokens=1500
-                )
-
-                result = response.choices[0].message.content
-
-                st.session_state.history.append({
-                    "user":prompt,
-                    "assistant":result
-                })
-
-        except Exception as e:
-            st.error(str(e))
-
-# ==================================================
-# CHAT HISTORY
-# ==================================================
-
-if st.session_state.history:
-
-    st.markdown("## 📈 Insights")
-
-    for item in reversed(st.session_state.history):
-
-        st.markdown(
-            f"""
-            <div class="chat-user">
-            <b>👤 You:</b><br>
-            {item['user']}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        st.markdown(
-            f"""
-            <div class="chat-bot">
-            <b>🔥 MemeScout:</b><br>
-            {item['assistant']}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-# ==================================================
-# FOOTER
-# ==================================================
-
-st.markdown("---")
-
-st.info(
-    "🚀 MemeScout helps brands discover viral internet culture opportunities before competitors."
-)
+           
