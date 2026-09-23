@@ -71,7 +71,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-api_key = os.getenv("GEMINI_API_KEY") 
+api_key = st.secrets.get("GEMINI_API_KEY")
 # ----------------------------------
 # SIDEBAR
 # ----------------------------------
