@@ -16,7 +16,7 @@ st.set_page_config(
 # ==================================================
 
 try:
-    GROQ_API_KEY =["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"]
+    GROQ_API_KEY ="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"
 except Exception:
     st.error("❌ GROQ_API_KEY not found in Streamlit Secrets")
     st.stop()
