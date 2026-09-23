@@ -1,12 +1,11 @@
 import streamlit as st
 from google import genai
-from google.genai import types
 
 # ----------------------------------
 # PAGE CONFIG
 # ----------------------------------
 st.set_page_config(
-    page_title="MemeScout AI",
+    page_title="🔥 MemeScout AI",
     page_icon="🔥",
     layout="wide"
 )
@@ -28,14 +27,6 @@ st.markdown("""
     text-align: center;
     color: white;
     margin-bottom: 20px;
-}
-
-.hero h1 {
-    font-size: 48px;
-}
-
-.hero p {
-    font-size: 18px;
 }
 
 .user-box {
@@ -70,41 +61,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-api_key = st.secrets.get("GEMINI_API_KEY")
 # ----------------------------------
-# SIDEBAR
+# API KEY
 # ----------------------------------
-with st.sidebar:
-    st.title("⚙ Configuration")
-
-    st.markdown("---")
-
-    st.subheader("🎯 What MemeScout Does")
-
-    st.markdown("""
-    - Discover trending memes
-    - Explain meme meaning
-    - Analyze Gen Z culture
-    - Suggest campaign ideas
-    - Evaluate brand safety
-    - Recommend social platforms
-    - Generate viral content strategies
-    """)
-
-# ----------------------------------
-# HEADER
-# ----------------------------------
-st.markdown("""
-<div class="hero">
-    <h1>🔥 MemeScout AI</h1>
-    <p>Your AI Meme Trend Analyst for Brands & Marketers</p>
-</div>
-""", unsafe_allow_html=True)
+api_key = "AQ.Ab8RN6Le0l3pqr-WmaR7o9roeNeZWBMfsnLsyJqEOnKT9aPK2A"
 
 # ----------------------------------
 # SYSTEM PROMPT
 # ----------------------------------
-system_instruction = """
+SYSTEM_PROMPT = """
 You are a Meme Trend Analyst AI.
 
 Your name is MemeScout.
@@ -124,9 +89,10 @@ Rules:
 - Explain internet slang in simple language.
 - Focus on marketing insights rather than entertainment only.
 
-Always greet users with:
+Always start with:
 
-"🔥 Hello! I am MemeScout, your AI Meme Trend Analyst. I help brands discover and leverage internet trends before they go mainstream."
+🔥 Hello! I am MemeScout, your AI Meme Trend Analyst.
+I help brands discover and leverage internet trends before they go mainstream.
 """
 
 # ----------------------------------
@@ -136,7 +102,43 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # ----------------------------------
-# SUGGESTED PROMPTS
+# SIDEBAR
+# ----------------------------------
+with st.sidebar:
+    st.title("⚙ Configuration")
+
+    st.markdown("---")
+
+    st.subheader("🎯 What MemeScout Does")
+
+    st.markdown("""
+    ✅ Discover trending memes
+
+    ✅ Explain meme meaning
+
+    ✅ Analyze Gen Z culture
+
+    ✅ Suggest campaign ideas
+
+    ✅ Evaluate brand safety
+
+    ✅ Recommend social platforms
+
+    ✅ Generate viral content strategies
+    """)
+
+# ----------------------------------
+# HEADER
+# ----------------------------------
+st.markdown("""
+<div class="hero">
+<h1>🔥 MemeScout AI</h1>
+<p>Your AI Meme Trend Analyst for Brands & Marketers</p>
+</div>
+""", unsafe_allow_html=True)
+
+# ----------------------------------
+# QUICK PROMPTS
 # ----------------------------------
 st.markdown("### 💡 Try These Questions")
 
@@ -156,35 +158,38 @@ with col3:
 # ----------------------------------
 user_prompt = st.text_area(
     "Ask MemeScout",
+    height=150,
     placeholder="Example: Find trending memes that a sportswear brand can use this week..."
 )
 
 # ----------------------------------
-# BUTTON
+# GENERATE RESPONSE
 # ----------------------------------
 if st.button("🚀 Analyze Trends"):
 
     if not api_key:
-        st.error("Please enter your Gemini API Key.")
+        st.error("GEMINI_API_KEY is missing in Streamlit Secrets.")
     elif not user_prompt.strip():
-        st.warning("Enter a question to continue.")
+        st.warning("Please enter a question.")
     else:
-
         try:
             client = genai.Client(api_key=api_key)
 
-            with st.spinner("Analyzing internet culture and trends..."):
+            with st.spinner("🔍 Analyzing meme trends..."):
 
-                response = client.models.generate_content()
-                   model = genai.GenerativeModel("gemini-1.5-flash")
+                prompt = f"""
+                {SYSTEM_PROMPT}
 
-response = model.generate_content(
+                User Question:
+                {user_prompt}
+                """
 
-"Hello"
+                response = client.models.generate_content(
+                    model="gemini-1.5-flash",
+                    contents=prompt
+                )
 
-)
-
-print(response.text)
+                result = response.text
 
                 st.session_state.messages.append(
                     {
@@ -197,7 +202,7 @@ print(response.text)
             st.error(f"Error: {e}")
 
 # ----------------------------------
-# CONVERSATION
+# CHAT HISTORY
 # ----------------------------------
 if st.session_state.messages:
 
@@ -232,6 +237,7 @@ st.markdown("---")
 
 st.markdown("""
 <div class="insight-card">
+
 <b>📌 Business Use Cases</b>
 
 <ul>
@@ -244,6 +250,8 @@ st.markdown("""
 <li>Influencer Marketing Teams</li>
 </ul>
 
-<b>Goal:</b> Help brands identify viral internet culture opportunities before competitors.
+<b>Goal:</b>
+Help brands identify viral internet culture opportunities before competitors.
+
 </div>
 """, unsafe_allow_html=True)
