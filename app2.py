@@ -69,7 +69,7 @@ st.markdown("""
 
 </style>
 """, unsafe_allow_html=True)
-api_key = 'AQ.Ab8RN6lwDWel333epQYmwkdfioamYCiGKDNT-Fl3MfryXA36oLQ'
+api_key = 'AQ.Ab8RN6KPhFZHz6CyOsC3KYYuQpglBMNyS8J_WYHsPCtEBqkEMQ'
 # ----------------------------------
 # SIDEBAR
 # ----------------------------------
