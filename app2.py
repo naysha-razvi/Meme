@@ -18,11 +18,11 @@ st.markdown("""
 <style>
 
 .stApp {
-    background-color: #F8FAFC;
+    background-color: #0F172A;
 }
 
 .hero {
-    background: linear-gradient(135deg, #7C3AED, #EC4899);
+    background: linear-gradient(135deg, #111827, #312E81);
     padding: 2rem;
     border-radius: 20px;
     text-align: center;
@@ -36,37 +36,45 @@ st.markdown("""
 
 .hero p {
     font-size: 18px;
+    color: #CBD5E1;
 }
 
 .user-box {
-    background-color: #EDE9FE;
+    background-color: #1E293B;
+    color: #F8FAFC;
     padding: 15px;
     border-radius: 15px;
     margin-bottom: 10px;
 }
 
 .bot-box {
-    background-color: #FCE7F3;
+    background-color: #111827;
+    color: #F8FAFC;
     padding: 15px;
     border-radius: 15px;
     margin-bottom: 10px;
 }
 
 .insight-card {
-    background: white;
+    background: #1E293B;
+    color: #F8FAFC;
     padding: 15px;
     border-radius: 15px;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
 }
 
 .stButton button {
     width: 100%;
     border-radius: 10px;
-    background: linear-gradient(135deg, #7C3AED, #EC4899);
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
     color: white;
     font-weight: bold;
+    border: none;
 }
 
+.stButton button:hover {
+    background: linear-gradient(135deg, #6366F1, #9333EA);
+}
 </style>
 """, unsafe_allow_html=True)
 api_key = 'AQ.Ab8RN6JEg44V_wYUZc6VgCZE-h_360dd4upHY-TE4GD_6ZgbNg'
