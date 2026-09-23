@@ -175,7 +175,7 @@ if st.button("🚀 Analyze Trends"):
 
             with st.spinner("Analyzing internet culture and trends..."):
 
-                response = client.models.generate_content(
+                response = client.models.generate_content()
                    model = genai.GenerativeModel("gemini-1.5-flash")
 
 response = model.generate_content(
