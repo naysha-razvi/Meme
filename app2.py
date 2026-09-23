@@ -16,7 +16,7 @@ st.set_page_config(
 # ==================================================
 
 try:
-    GROQ_API_KEY = st.secrets["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"]
+    GROQ_API_KEY =["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"]
 except Exception:
     st.error("❌ GROQ_API_KEY not found in Streamlit Secrets")
     st.stop()
@@ -205,4 +205,63 @@ if st.button("🚀 Analyze Trends"):
                             "content": prompt
                         }
                     ],
-           
+                    temperature=0.7,
+                    max_tokens=1500
+                )
+
+                answer = response.choices[0].message.content
+
+                st.session_state.history.append({
+                    "user": prompt,
+                    "assistant": answer
+                })
+
+                st.rerun()
+
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
+
+# ==================================================
+# CHAT HISTORY
+# ==================================================
+
+if st.session_state.history:
+
+    st.markdown("## 📈 Insights")
+
+    for chat in reversed(st.session_state.history):
+
+        st.markdown(
+            f"""
+            <div class="user-box">
+            <b>👤 You:</b><br><br>
+            {chat['user']}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f"""
+            <div class="bot-box">
+            <b>🔥 MemeScout:</b><br><br>
+            {chat['assistant']}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+# ==================================================
+# FOLLOW-UP QUESTIONS
+# ==================================================
+
+if st.session_state.history:
+
+    st.markdown("### 🤔 Suggested Follow-up Questions")
+
+    suggestions = [
+        "What brands can use this meme?",
+        "What are the risks of using this meme?",
+        "Give me 5 campaign ideas.",
+        "Which platforms should I target?",
+        "How long will this trend
